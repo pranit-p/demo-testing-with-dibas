@@ -4,32 +4,12 @@ Description: Send custom security findings to AWS Security Hub
 # Reference - https://github.com/aws-samples/aws-securityhub-remediations/blob/main/aws-ecr-continuouscompliance/
 
 Parameters:
-  S3BucketNameUSEastA:
+  BucketPrefix:
     Type: String
     Description: Lambda source code limited to 4096 characters
-  S3BucketNameUSEastB:
+  BucketKey:
     Type: String
     Description: Lambda source code limited to 4096 characters
-  S3BucketNameUSWestC:
-    Type: String
-    Description: Lambda source code limited to 4096 characters
-  S3BucketNameUSWestD:
-    Type: String
-    Description: Lambda source code limited to 4096 characters
-
-Conditions:
-  Region1: !Equals
-    - !Ref AWS::Region
-    - us-east-1
-  Region2: !Equals
-    - !Ref AWS::Region
-    - us-east-2
-  Region3: !Equals
-    - !Ref AWS::Region
-    - us-west-1
-  Region4: !Equals
-    - !Ref AWS::Region
-    - us-west-2
 
 Resources:
   CaptureECRImageScanEvents:
@@ -82,9 +62,8 @@ Resources:
           account_num: !Ref 'AWS::AccountId'
           region: !Ref 'AWS::Region'
       Code:
-        S3Bucket: !If [Region1, S3BucketNameUSEastA, !If [Region2, S3BucketNameUSEastB, !If [Region3, S3BucketNameUSWestC,
-                                                                                                   S3BucketNameUSWestD]]]
-        S3Key: custom_findings_lambda
+        S3Bucket: !Sub '${BucketPrefix}-${AWS::Region}'
+        S3Key: !Ref BucketKey
       Tags:
         - Key: DO_NOT_DELETE
           Value: True
